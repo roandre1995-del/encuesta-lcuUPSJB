@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cuestionario LCU — Fotocurado LED en Estomatología (UPL)</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root{
+    --ink:#1c2b2d;
+    --paper:#f6f4ee;
+    --panel:#ffffff;
+    --line:#d8d3c4;
+    --accent:#3c6e5e;
+    --accent-dark:#274b40;
+    --muted:#6b6a5f;
+    --good:#3c6e5e;
+    --warn:#a33;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Georgia','Iowan Old Style',serif;
+    background:var(--paper);
+    color:var(--ink);
+    line-height:1.5;
+  }
+  header{
+    background:var(--accent-dark);
+    color:#f6f4ee;
+    padding:2.4rem 1.5rem 2rem;
+    text-align:left;
+  }
+  header .wrap{max-width:760px;margin:0 auto;}
+  header .kicker{
+    font-family:Helvetica,Arial,sans-serif;
+    font-size:.72rem;
+    letter-spacing:.08em;
+    color:#a9c2b6;
+    margin:0 0 .6rem;
+  }
+  header h1{
+    font-size:1.35rem;
+    margin:0 0 .8rem;
+    font-weight:400;
+    letter-spacing:.1px;
+    line-height:1.35;
+    max-width:62ch;
+  }
+  header p{
+    margin:0;
+    color:#cfd9d1;
+    font-family:Helvetica,Arial,sans-serif;
+    font-size:.92rem;
+    max-width:56ch;
+  }
+  .notice{
+    font-family:Helvetica,Arial,sans-serif;
+    font-size:.78rem;
+    color:#cfd9d1;
+    margin-top:.9rem;
+    border-top:1px solid rgba(255,255,255,.15);
+    padding-top:.7rem;
+    max-width:56ch;
+  }
+  main{max-width:760px;margin:0 auto;padding:2rem 1.5rem 6rem;}
+  section.block{margin-bottom:2.6rem;}
+  section.block > h2{
+    font-family:Helvetica,Arial,sans-serif;
+    font-size:.78rem;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    color:var(--accent);
+    border-bottom:1px solid var(--line);
+    padding-bottom:.5rem;
+    margin:0 0 1.3rem;
+  }
+  section.block > p.section-note{
+    font-family:Helvetica,Arial,sans-serif;
+    font-size:.82rem;
+    color:var(--muted);
+    margin:-.9rem 0 1.2rem;
+  }
+  .q{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:3px;
+    padding:1.15rem 1.3rem 1.3rem;
+    margin-bottom:1rem;
+  }
+  .q p.prompt{
+    font-size:1.02rem;
+    margin:0 0 .9rem;
+    color:var(--ink);
+  }
+  .q .hint{
+    font-family:Helvetica,Arial,sans-serif;
+    font-size:.76rem;
+    color:var(--muted);
+    margin:-.6rem 0 .8rem;
+  }
+  .opt{
+    display:flex;
+    align-items:flex-start;
+    gap:.6rem;
+    padding:.4rem .5rem;
+    border-radius:3px;
+    cursor:pointer;
+    font-family:Helvetica,Arial,sans-serif;
+    font-size:.94rem;
+    transition:background .12s ease;
+  }
+  .opt:hover{background:#f0efe6;}
+  .opt input{
+    margin-top:.2rem;
+    accent-color:var(--accent);
+    width:16px;height:16px;
+    flex-shrink:0;
+  }
+  .opt.checked{background:#e9f0ea;}
+  .freeform-inline{
+    width:100%;
+    font-family:Helvetica,Arial,sans-serif;
+    font-size:.92rem;
+    border:1px solid var(--line);
+    border-radius:3px;
+    padding:.55rem .6rem;
+  }
+  .q .freeform-inline{margin-top:.7rem;}
+  .progress-bar{
+    position:sticky;
+    top:0;
+    z-index:10;
+    background:var(--paper);
+    border-bottom:1px solid var(--line);
+    padding:.6rem 1.5rem;
+    font-family:Helvetica,Arial,sans-serif;
+    font-size:.78rem;
+    color:var(--muted);
+    display:flex;
+    align-items:center;
+    gap:.8rem;
+  }
+  .progress-track{
+    flex:1;
+    height:5px;
+    background:#e4e1d4;
+    border-radius:3px;
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;
+    width:0%;
+    background:var(--accent);
+    transition:width .25s ease;
+  }
+  .actions{
+    max-width:760px;
+    margin:0 auto;
+    padding:0 1.5rem 3rem;
+    display:flex;
+    gap:.8rem;
+    flex-wrap:wrap;
+  }
+  button{
+    font-family:Helvetica,Arial,sans-serif;
+    font-size:.9rem;
+    padding:.75rem 1.4rem;
+    border-radius:3px;
+    border:1px solid var(--accent-dark);
+    cursor:pointer;
+    background:var(--accent-dark);
+    color:#fff;
+  }
+  button.secondary{
+    background:transparent;
+    color:var(--accent-dark);
+  }
+  button:disabled{opacity:.55;cursor:not-allowed;}
+  #results{
+    display:none;
+    max-width:760px;
+    margin:0 auto 4rem;
+    padding:0 1.5rem;
+  }
+  #results.show{display:block;}
+  .card-result{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:1.4rem 1.5rem;
+    margin-bottom:1rem;
+  }
+  .card-result h3{
+    font-family:Helvetica,Arial,sans-serif;
+    font-size:.85rem;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    color:var(--accent);
+    margin:0 0 .6rem;
+  }
+  .score-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    font-family:Helvetica,Arial,sans-serif;
+  }
+  .score-num{font-size:1.6rem;color:var(--ink);}
+  .score-level{
+    font-size:.85rem;
+    padding:.2rem .6rem;
+    border-radius:20px;
+    background:#e9f0ea;
+    color:var(--accent-dark);
+  }
+  #printSummary{white-space:pre-wrap;font-family:Helvetica,Arial,sans-serif;font-size:.85rem;background:#fbfaf6;border:1px dashed var(--line);padding:1rem;border-radius:3px;}
+  .qr-card{
+    max-width:340px;
+    margin:1.6rem auto 0;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:1.3rem 1.4rem;
+    text-align:center;
+  }
+  .qr-card h3{
+    font-family:Helvetica,Arial,sans-serif;
+    font-size:.78rem;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    color:#cfd9d1;
+    margin:0 0 .8rem;
+  }
+  #qrcode{display:flex;justify-content:center;margin:.4rem 0 .9rem;min-height:180px;align-items:center;}
+  #qrcode img{border-radius:3px;background:#fff;padding:6px;}
+  #qrUrl{
+    font-family:Helvetica,Arial,sans-serif;
+    font-size:.76rem;
+    color:#cfd9d1;
+    word-break:break-all;
+    margin:0 0 .8rem;
+  }
+  .qr-card button{width:100%;}
+  .qr-fallback{font-family:Helvetica,Arial,sans-serif;font-size:.8rem;color:#e3b7b7;}
+  #submitStatus{max-width:760px;margin:0 auto;padding:0 1.5rem;font-family:Helvetica,Arial,sans-serif;font-size:.85rem;}
+  @media print{
+    header, .actions, .progress-bar, .qr-card{display:none;}
+    .q{break-inside:avoid;}
+  }
+</style>
+</head>
+<body>
+
+<div class="progress-bar">
+  <span id="progressText">0 / 0 respondidas</span>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+</div>
+
+<header>
+  <div class="wrap">
+    <p class="kicker">FACULTAD DE ESTOMATOLOGÍA · UNIVERSIDAD PRIVADA DE LIMA</p>
+    <h1>CUESTIONARIO NIVEL DE CONOCIMIENTO Y COMPETENCIAS SOBRE LA EFICACIA DE LA LUZ EMITIDA POR UNIDADES DE FOTOCURADO LED EN ESTUDIANTES DE ESTOMATOLOGÍA DE UNA UNIVERSIDAD PRIVADA DE LIMA</h1>
+    <p>Conocimiento, práctica clínica, mantenimiento y satisfacción respecto a las unidades de fotocurado (LCU). Marque una opción en cada pregunta; su borrador se guarda en este dispositivo mientras completa el formulario.</p>
+    <p class="notice">Al hacer clic en "Enviar respuesta", su respuesta se guarda para fines de consolidación estadística del estudio. Solo se solicitan las siglas de su nombre y apellidos con fines de control interno; sus respuestas son tratadas de forma confidencial.</p>
+
+    <div class="qr-card">
+      <h3>Compartir este cuestionario</h3>
+      <div id="qrcode"></div>
+      <p id="qrUrl">—</p>
+      <button class="secondary" id="btnCopyLink" style="border-color:#a9c2b6;color:#f6f4ee;">Copiar enlace</button>
+    </div>
+  </div>
+</header>
+
+<main id="surveyForm"></main>
+
+<div class="actions">
+  <button id="btnScore">Calcular mi resultado</button>
+  <button id="btnSubmit">Enviar respuesta</button>
+  <button class="secondary" id="btnReset">Reiniciar encuesta</button>
+  <button class="secondary" id="btnPrint">Imprimir / Guardar como PDF</button>
+  <button class="secondary" id="btnGroup">Ver resultados del grupo</button>
+</div>
+<div id="submitStatus"></div>
+
+<div id="results">
+  <div class="card-result">
+    <h3>Sección 1 · Conocimiento</h3>
+    <div class="score-row"><span class="score-num" id="s1score">0 / 6</span><span class="score-level" id="s1level">—</span></div>
+  </div>
+  <div class="card-result">
+    <h3>Sección 2 · Práctica clínica</h3>
+    <div class="score-row"><span class="score-num" id="s2score">0 / 4</span><span class="score-level" id="s2level">—</span></div>
+  </div>
+  <div class="card-result">
+    <h3>Sección 3 · Mantenimiento del equipo</h3>
+    <div class="score-row"><span class="score-num" id="s3score">0 / 4</span><span class="score-level" id="s3level">—</span></div>
+  </div>
+  <div class="card-result">
+    <h3>Sección 4 · Satisfacción</h3>
+    <div class="score-row"><span class="score-num" id="s4score">0 / 15</span><span class="score-level" id="s4level">—</span></div>
+  </div>
+  <div class="card-result">
+    <h3>Puntaje global</h3>
+    <div class="score-row"><span class="score-num" id="totalScore">0 / 29 (0%)</span><span class="score-level" id="totalLevel">—</span></div>
+  </div>
+  <div class="card-result">
+    <h3>Resumen para copiar</h3>
+    <div id="printSummary"></div>
+  </div>
+</div>
+
+<div id="groupResults" style="display:none;max-width:760px;margin:0 auto 4rem;padding:0 1.5rem;">
+  <div class="card-result">
+    <h3>Resultados agregados del grupo</h3>
+    <div id="groupContent" style="font-family:Helvetica,Arial,sans-serif;font-size:.9rem;"></div>
+  </div>
+</div>
+
+<script>
+// ---------------------------------------------------------------
+// Configuración
+// ---------------------------------------------------------------
+// Si publica este archivo en un servidor propio (Google Apps Script, un
+// endpoint de Google Forms, Airtable, etc.) pegue aquí la URL que reciba
+// un POST en JSON. Si lo deja vacío, el envío usa almacenamiento
+// compartido cuando el archivo corre dentro de Claude (window.storage) y,
+// si no está disponible, guarda la respuesta en este dispositivo y
+// descarga automáticamente un archivo .json que usted puede recolectar.
+// Pegue aquí la URL que termina en /exec que le entrega Google Apps Script
+// al publicar el proyecto como aplicación web (ver instrucciones del
+// investigador). Ejemplo: "https://script.google.com/macros/s/AKfycb.../exec"
+const SUBMIT_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbwfjO7vkPxQ54CYX42SKLjAahFo6_G8rPx5v5fFOh26tDqDPSZCWlpCtsMJ1QZA92mRTA/exec";
+
+// ---------------------------------------------------------------
+// Definición de las preguntas
+// type: "single" (radio) | "multi" (checkbox) | "text" (respuesta libre)
+// correct: índice de la opción correcta — solo para ítems con respuesta objetiva
+// acceptedSets: para preguntas de opción múltiple, lista de combinaciones
+//   EXACTAS que se consideran 100% correctas. Cualquier otra combinación
+//   (incluida una selección parcial) puntúa 0.
+// otherAt: índice de la opción que, al marcarse, habilita un campo de texto libre
+// likertWeights: puntaje por opción, usado en la escala de satisfacción
+// ---------------------------------------------------------------
+const SECTIONS = [
+{
+  id:"s0",
+  title:"Datos sociodemográficos",
+  note:"Esta información es de uso exclusivamente estadístico y no forma parte del puntaje del cuestionario.",
+  questions:[
+    { id:"q0_siglas", type:"text", prompt:"Siglas de sus nombres y apellidos", hint:"Ejemplo: GGRP", scored:false },
+    { id:"q0_estadocivil", type:"single", prompt:"Estado civil",
+      options:["Soltero","Casado","Conviviente","Viudo","Divorciado"], scored:false },
+    { id:"q0_procedencia", type:"single", prompt:"Lugar de procedencia",
+      options:["Capital - Lima","Provincia"], scored:false },
+    { id:"q0_ocupacion", type:"single", prompt:"Ocupación",
+      options:["Solo Estudia","Trabaja y Estudia","Otros"], otherAt:2, scored:false },
+    { id:"q0_genero", type:"single", prompt:"Género",
+      options:["Masculino","Femenino"], scored:false },
+    { id:"q0_edad", type:"single", prompt:"Edad",
+      options:["18 – 25 años","25 – 30 años","30 a más"], scored:false },
+    { id:"q0_ciclo", type:"single", prompt:"Ciclo en curso",
+      options:["3° Ciclo – 4° Ciclo","5° Ciclo – 6° Ciclo","7° Ciclo – 10° Ciclo"], scored:false }
+  ]
+},
+{
+  id: "s1",
+  title: "Sección 1 — Conocimiento sobre LCUs y ciencia de los materiales",
+  questions: [
+    { id:"q1", type:"single", prompt:"¿Conoce el sistema de fotoiniciadores en los materiales activados por luz utilizados en su clínica?",
+      options:["Sí","No"], correct:0, scored:true },
+    { id:"q2", type:"single", prompt:"¿Sabe si su unidad de fotocurado (LCU) tiene una longitud de onda compatible con los fotoiniciadores del material que utiliza?",
+      options:["Sí","No"], correct:0, scored:true },
+    { id:"q3", type:"single", prompt:"¿Cree que una exposición radiante suficiente es un factor crucial para la longevidad de la restauración?",
+      options:["Sí","No"], correct:0, scored:true },
+    { id:"q4", type:"single", prompt:"¿Con qué frecuencia utiliza la LCU y materiales activados por luz en su práctica clínica?",
+      options:["Diariamente","Semanalmente","Raramente","Nunca"], scored:false },
+    { id:"q5", type:"multi", prompt:"¿Cuál de los siguientes puede asociarse con una exposición radiante insuficiente (polimerización inadecuada)?",
+      hint:"Seleccione todas las opciones correctas, o bien marque únicamente \"TODAS LAS ANTERIORES\" si considera que aplican todas. Una selección parcial se califica con 0 puntos.",
+      options:["Bajas propiedades mecánicas","Baja estabilidad de color","Mayor colonización bacteriana","Reacciones tóxicas","Reacciones alérgicas","Caries secundaria","Filtración marginal","Alteración de color marginal","Sensibilidad dental","TODAS LAS ANTERIORES"],
+      acceptedSets:[[0,1,2,3,4,5,6,7,8],[9]], scored:true },
+    { id:"q6", type:"single", prompt:"¿Cuál es la irradiancia mínima requerida para una polimerización adecuada de compuestos de 2 mm de espesor en 40 segundos?",
+      options:["100-300 mW/cm²","300-500 mW/cm²",">500 mW/cm²","No estoy seguro"], correct:1, scored:true },
+    { id:"q7", type:"single", prompt:"¿Cuál es la técnica de control de infecciones que tiene el menor efecto negativo en las puntas de fotocurado?",
+      options:["Autoclave","Solución desinfectante","Barrera transparente","No estoy seguro"], correct:2, scored:true },
+    { id:"q8", type:"multi", prompt:"¿Cuál(es) es/son su(s) fuente(s) de información sobre las LCU y los materiales activados por luz?",
+      hint:"Seleccione todas las que correspondan",
+      options:["Libros de texto","Revistas científicas","Conferencias en el currículo de pregrado","Conferencias en el currículo de posgrado","Conferencias de educación continua (incluyendo congresos)","Folletos de fabricantes","Internet y redes sociales"], scored:false }
+  ]
+},
+{
+  id:"s2",
+  title:"Sección 2 — Práctica clínica relacionada con LCUs (competencia clínica)",
+  questions:[
+    { id:"q9", type:"single", prompt:"¿Qué tipo de LCU está utilizando?",
+      options:["Luces de cuarzo-tungsteno-halógeno (QTH)","Luces de arco de plasma (PAC)","Láseres de iones de argón","Diodos emisores de luz (LED)","No estoy seguro"], scored:false },
+    { id:"q10", type:"single", prompt:"¿Qué modo de curado utiliza para polimerizar su restauración?",
+      options:["Inicio suave (Soft start)","Curado rápido (Fast cure)","Modo convencional","No reviso el modo de curado en mi dispositivo"], scored:false },
+    { id:"q11", type:"single", prompt:"¿Cuánto tiempo fotocura una restauración de resina compuesta?",
+      options:["10 segundos por cada incremento de 2 mm","20 segundos por cada incremento de 2 mm","40 segundos por cada incremento de 2 mm","60 segundos para la restauración completa"], correct:1, scored:true },
+    { id:"q12", type:"single", prompt:"La ubicación y morfología del diente pueden afectar la posición entre la punta de la LCU y la superficie de la resina. El dentista siempre debe aspirar a:",
+      options:["Mantener la punta lo más cerca posible de la superficie de la restauración","Mantener la punta hasta a 10 mm","Posicionar la punta a un ángulo de 45 grados","Posicionar la punta a un ángulo de 90 grados"], correct:0, scored:true },
+    { id:"q13", type:"single", prompt:"Para aumentar la exposición radiante total durante el curado de su restauración, podría necesitar:",
+      options:["Almacenar el material de resina en un refrigerador antes de la aplicación clínica","Aumentar el tiempo de curado más allá de la recomendación del fabricante","Elegir un tono de resina más oscuro"], correct:1, scored:true },
+    { id:"q14", type:"single", prompt:'¿Qué utiliza principalmente para proteger sus ojos de los riesgos de la "luz azul"?',
+      options:["Escudo de luz montado en la LCU","Escudo de luz manual","Gafas protectoras naranjas","Mi asistente realiza el curado","Miro hacia otro lado"], correct:2, scored:true }
+  ]
+},
+{
+  id:"s3",
+  title:"Sección 3 — Mantenimiento y control de la unidad de fotocurado (LCU)",
+  questions:[
+    { id:"q15", type:"single", prompt:"¿Conoce la vida útil esperada de su unidad de fotocurado?",
+      options:["Sí","No"], correct:0, scored:true },
+    { id:"q16", type:"single", prompt:"¿Inspecciona, limpia y revisa su LCU antes de usarla para asegurarse de que esté libre de defectos y residuos y que esté en la configuración correcta?",
+      options:["Sí","No"], correct:0, scored:true },
+    { id:"q17", type:"single", prompt:"¿Controla el mantenimiento de su unidad de fotocurado y sigue las recomendaciones de mantenimiento del fabricante?",
+      options:["Sí","No"], correct:0, scored:true },
+    { id:"q18", type:"single", prompt:"¿Con qué frecuencia realiza el mantenimiento de su dispositivo?",
+      options:["1–3 meses","3–6 meses","6–12 meses","12 meses","No realizo mantenimiento a mi dispositivo"], scored:false },
+    { id:"q19", type:"single", prompt:"¿Utiliza un radiómetro dental para controlar la irradiancia de su LCU?",
+      options:["Sí","No","No estoy familiarizado con este dispositivo"], correct:0, scored:true },
+    { id:"q20", type:"single", prompt:"¿Con qué frecuencia revisa el nivel de irradiancia (potencia de salida) de su dispositivo?",
+      options:["1–3 meses","3–6 meses","6–12 meses","12 meses","No realizo mantenimiento a mi dispositivo"], scored:false }
+  ]
+},
+{
+  id:"s4",
+  title:"Sección 4 — Nivel de satisfacción con la LCU y la ciencia de los materiales",
+  questions:[
+    { id:"q21", type:"single", prompt:"¿Está satisfecho(a) con su unidad de fotocurado?",
+      options:["Satisfecho(a)","Moderadamente satisfecho(a)","Insatisfecho(a)"], likertWeights:[3,2,1], scored:"likert" },
+    { id:"q22", type:"single", prompt:"¿Está satisfecho(a) con su nivel de conocimiento sobre las LCU y los materiales activados por luz?",
+      options:["Satisfecho(a)","Moderadamente satisfecho(a)","Insatisfecho(a)"], likertWeights:[3,2,1], scored:"likert" },
+    { id:"q23", type:"single", prompt:"¿Está satisfecho(a) con su práctica clínica respecto a la aplicación de la LCU y los materiales activados por luz?",
+      options:["Satisfecho(a)","Moderadamente satisfecho(a)","Insatisfecho(a)"], likertWeights:[3,2,1], scored:"likert" },
+    { id:"q24", type:"single", prompt:"¿Está satisfecho(a) con el nivel de formación en los programas de odontología respecto a la práctica clínica de las LCU?",
+      options:["Satisfecho(a)","Moderadamente satisfecho(a)","Insatisfecho(a)"], likertWeights:[3,2,1], scored:"likert" },
+    { id:"q25", type:"single", prompt:"¿Está satisfecho(a) con los cursos de educación continua ofrecidos relacionados con la LCU y su práctica clínica?",
+      options:["Satisfecho(a)","Moderadamente satisfecho(a)","Insatisfecho(a)"], likertWeights:[3,2,1], scored:"likert" }
+  ]
+}
+];
+
+const STORAGE_KEY = "lcu_survey_answers_v2";
+let answers = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+
+const form = document.getElementById("surveyForm");
+
+function escapeHtml(str){
+  return String(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+function render(){
+  form.innerHTML = "";
+  SECTIONS.forEach(sec=>{
+    const secEl = document.createElement("section");
+    secEl.className = "block";
+    let secHtml = `<h2>${sec.title}</h2>`;
+    if(sec.note) secHtml += `<p class="section-note">${sec.note}</p>`;
+    secEl.innerHTML = secHtml;
+
+    sec.questions.forEach(q=>{
+      const qEl = document.createElement("div");
+      qEl.className = "q";
+      let html = `<p class="prompt">${q.prompt}</p>`;
+      if(q.hint) html += `<p class="hint">${q.hint}</p>`;
+
+      if(q.type === "text"){
+        const val = answers[q.id] || "";
+        html += `<input type="text" class="freeform-inline" data-textq="${q.id}" value="${escapeHtml(val)}">`;
+      } else {
+        q.options.forEach((opt,i)=>{
+          const inputType = q.type === "multi" ? "checkbox" : "radio";
+          const name = q.id;
+          const checked = q.type === "multi"
+            ? (answers[q.id]||[]).includes(i) ? "checked" : ""
+            : (answers[q.id] === i) ? "checked" : "";
+          html += `
+            <label class="opt ${checked ? "checked":""}" data-q="${q.id}" data-i="${i}">
+              <input type="${inputType}" name="${name}" value="${i}" ${checked}>
+              <span>${opt}</span>
+            </label>`;
+        });
+        if(q.otherAt !== undefined && answers[q.id] === q.otherAt){
+          const otherVal = answers[q.id+"_other"] || "";
+          html += `<input type="text" class="freeform-inline" data-textq="${q.id}_other" placeholder="Especifique" value="${escapeHtml(otherVal)}">`;
+        }
+      }
+
+      qEl.innerHTML = html;
+      secEl.appendChild(qEl);
+    });
+    form.appendChild(secEl);
+  });
+
+  // listeners — opciones (radio/checkbox)
+  form.querySelectorAll(".opt input").forEach(inp=>{
+    inp.addEventListener("change", onChange);
+  });
+  // listeners — texto libre
+  form.querySelectorAll("[data-textq]").forEach(inp=>{
+    inp.addEventListener("input", onTextChange);
+  });
+  updateProgress();
+}
+
+function onTextChange(e){
+  const key = e.target.getAttribute("data-textq");
+  answers[key] = e.target.value;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(answers));
+  updateProgress();
+}
+
+function onChange(e){
+  const qid = e.target.name;
+  const val = parseInt(e.target.value,10);
+  const question = findQuestion(qid);
+  if(question.type === "multi"){
+    let arr = answers[qid] || [];
+    if(e.target.checked){ if(!arr.includes(val)) arr.push(val); }
+    else { arr = arr.filter(v=>v!==val); }
+    answers[qid] = arr;
+  } else {
+    answers[qid] = val;
+  }
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(answers));
+  render();
+  document.getElementById("results").classList.remove("show");
+}
+
+function findQuestion(qid){
+  for(const s of SECTIONS) for(const q of s.questions) if(q.id===qid) return q;
+}
+
+function labelFor(qid, idx){
+  const q = findQuestion(qid);
+  if(!q || idx === undefined || idx === null) return "";
+  if(q.options && q.options[idx] !== undefined) return q.options[idx];
+  return String(idx);
+}
+
+function countTotal(){
+  let count = 0, total = 0;
+  SECTIONS.forEach(s=>s.questions.forEach(q=>{
+    total++;
+    const a = answers[q.id];
+    if(q.type==="multi"){ if(a && a.length>0) count++; }
+    else if(q.type==="text"){ if(a && String(a).trim().length>0) count++; }
+    else { if(a !== undefined) count++; }
+  }));
+  return {count,total};
+}
+
+function updateProgress(){
+  const {count,total} = countTotal();
+  document.getElementById("progressText").textContent = `${count} / ${total} respondidas`;
+  document.getElementById("progressFill").style.width = (total ? (count/total*100) : 0)+"%";
+}
+
+function scoreSection(sec){
+  let score = 0, max = 0;
+  sec.questions.forEach(q=>{
+    if(q.scored === false) return;
+    if(q.scored === "likert"){
+      max += Math.max(...q.likertWeights);
+      const a = answers[q.id];
+      if(a !== undefined) score += q.likertWeights[a];
+      return;
+    }
+    max += 1;
+    const a = answers[q.id];
+    if(q.type === "multi"){
+      const given = (a || []).slice().sort((x,y)=>x-y);
+      let isCorrect = false;
+      if(q.acceptedSets){
+        isCorrect = q.acceptedSets.some(set=>{
+          const s = set.slice().sort((x,y)=>x-y);
+          return s.length === given.length && s.every((v,idx)=>v===given[idx]);
+        });
+      } else {
+        const correctSet = q.correct || [];
+        isCorrect = correctSet.length === given.length && correctSet.every(c=>given.includes(c));
+      }
+      if(isCorrect) score += 1;
+    } else {
+      if(a === q.correct) score += 1;
+    }
+  });
+  return {score, max};
+}
+
+document.getElementById("btnScore").addEventListener("click", ()=>{
+  const results = SECTIONS.filter(s=>s.id!=="s0").map(scoreSection);
+  const [s1,s2,s3,s4] = results;
+
+  document.getElementById("s1score").textContent = `${s1.score} / ${s1.max}`;
+  document.getElementById("s2score").textContent = `${s2.score} / ${s2.max}`;
+  document.getElementById("s3score").textContent = `${s3.score} / ${s3.max}`;
+  document.getElementById("s4score").textContent = `${s4.score} / ${s4.max}`;
+
+  const s1pct = s1.max ? (s1.score/s1.max*100) : 0;
+  const s2pct = s2.max ? (s2.score/s2.max*100) : 0;
+  const s3pct = s3.max ? (s3.score/s3.max*100) : 0;
+  const s4pct = s4.max ? (s4.score/s4.max*100) : 0;
+
+  setLevel("s1level", s1pct >= 83 ? "Bueno / Alto" : s1pct >= 50 ? "Regular / Moderado" : "Deficiente / Bajo");
+  setLevel("s2level", s2pct === 100 ? "Adecuada" : s2pct >= 50 ? "Parcialmente adecuada" : "Inadecuada");
+  setLevel("s3level", s3pct === 100 ? "Óptimo" : s3pct >= 50 ? "Aceptable" : "Deficiente");
+  setLevel("s4level", s4pct >= 87 ? "Alta" : s4pct >= 53 ? "Moderada" : "Baja");
+
+  const totalScore = s1.score + s2.score + s3.score + s4.score;
+  const totalMax = s1.max + s2.max + s3.max + s4.max;
+  const totalPct = totalMax ? (totalScore/totalMax*100) : 0;
+  document.getElementById("totalScore").textContent = `${totalScore} / ${totalMax} (${totalPct.toFixed(0)}%)`;
+  setLevel("totalLevel", totalPct >= 80 ? "Alto" : totalPct >= 50 ? "Moderado" : "Bajo");
+
+  const siglas = answers["q0_siglas"] || "(sin siglas)";
+  const summary =
+`RESUMEN — Cuestionario LCU
+Encuestado: ${siglas}
+Sección 1 (Conocimiento): ${s1.score}/${s1.max}
+Sección 2 (Práctica clínica): ${s2.score}/${s2.max}
+Sección 3 (Mantenimiento): ${s3.score}/${s3.max}
+Sección 4 (Satisfacción): ${s4.score}/${s4.max}
+TOTAL: ${totalScore}/${totalMax} (${totalPct.toFixed(0)}%)`;
+  document.getElementById("printSummary").textContent = summary;
+
+  document.getElementById("results").classList.add("show");
+  document.getElementById("results").scrollIntoView({behavior:"smooth"});
+});
+
+function setLevel(id, text){
+  document.getElementById(id).textContent = text;
+}
+
+document.getElementById("btnReset").addEventListener("click", ()=>{
+  if(confirm("¿Reiniciar todas las respuestas de la encuesta?")){
+    answers = {};
+    localStorage.removeItem(STORAGE_KEY);
+    render();
+    document.getElementById("results").classList.remove("show");
+  }
+});
+
+document.getElementById("btnPrint").addEventListener("click", ()=>window.print());
+
+// ---------------------------------------------------------------
+// Envío de respuestas — con niveles de respaldo
+// 1) window.storage compartido (disponible al ejecutar dentro de Claude)
+// 2) SUBMIT_ENDPOINT_URL configurable (su propio backend / Apps Script)
+// 3) Respaldo local: guarda en este dispositivo y descarga un .json
+// ---------------------------------------------------------------
+function getParticipantId(){
+  let pid = localStorage.getItem("lcu_survey_participant_id");
+  if(!pid){
+    pid = (crypto.randomUUID ? crypto.randomUUID() : ("p"+Date.now()+"_"+Math.random().toString(36).slice(2)));
+    localStorage.setItem("lcu_survey_participant_id", pid);
+  }
+  return pid;
+}
+
+function downloadJSON(obj, filename){
+  const blob = new Blob([JSON.stringify(obj, null, 2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+}
+
+async function submitResponse(record){
+  if(window.storage && typeof window.storage.set === "function"){
+    try{
+      const pid = getParticipantId();
+      const result = await window.storage.set(`responses:${pid}`, JSON.stringify(record), true);
+      if(result) return {ok:true, method:"storage"};
+    }catch(e){ console.warn("window.storage no disponible, probando alternativa", e); }
+  }
+
+  if(SUBMIT_ENDPOINT_URL){
+    try{
+      // Se usa "text/plain" a propósito: evita que el navegador dispare una
+      // solicitud OPTIONS de preflight, que Google Apps Script no responde.
+      // El script del lado servidor igual puede leer y parsear el JSON.
+      const res = await fetch(SUBMIT_ENDPOINT_URL, {
+        method:"POST",
+        headers:{"Content-Type":"text/plain;charset=utf-8"},
+        body: JSON.stringify(record)
+      });
+      if(res.ok){
+        const body = await res.json().catch(()=>({ok:true}));
+        if(body.ok !== false) return {ok:true, method:"endpoint"};
+      }
+    }catch(e){ console.warn("Envío al endpoint remoto falló", e); }
+  }
+
+  try{
+    const localKey = "lcu_survey_local_responses";
+    const local = JSON.parse(localStorage.getItem(localKey) || "[]");
+    local.push(record);
+    localStorage.setItem(localKey, JSON.stringify(local));
+    downloadJSON(record, `respuesta_lcu_${record.participantId}.json`);
+    return {ok:true, method:"local"};
+  }catch(e){
+    console.error(e);
+    return {ok:false};
+  }
+}
+
+const submitStatus = document.getElementById("submitStatus");
+const btnSubmit = document.getElementById("btnSubmit");
+
+btnSubmit.addEventListener("click", async ()=>{
+  const {count,total} = countTotal();
+  if(count < total){
+    submitStatus.textContent = `Faltan ${total-count} pregunta(s) por responder antes de enviar.`;
+    submitStatus.style.color = "var(--warn)";
+    return;
+  }
+
+  btnSubmit.disabled = true;
+  submitStatus.textContent = "Enviando...";
+  submitStatus.style.color = "var(--muted)";
+
+  const results = SECTIONS.filter(s=>s.id!=="s0").map(scoreSection);
+  const [s1,s2,s3,s4] = results;
+  const totalScore = s1.score + s2.score + s3.score + s4.score;
+  const totalMax = s1.max + s2.max + s3.max + s4.max;
+  const pid = getParticipantId();
+
+  const record = {
+    participantId: pid,
+    submittedAt: new Date().toISOString(),
+    demographics: {
+      siglas: answers["q0_siglas"] || "",
+      estadoCivil: labelFor("q0_estadocivil", answers["q0_estadocivil"]),
+      procedencia: labelFor("q0_procedencia", answers["q0_procedencia"]),
+      ocupacion: labelFor("q0_ocupacion", answers["q0_ocupacion"]),
+      ocupacionOtros: answers["q0_ocupacion_other"] || "",
+      genero: labelFor("q0_genero", answers["q0_genero"]),
+      edad: labelFor("q0_edad", answers["q0_edad"]),
+      ciclo: labelFor("q0_ciclo", answers["q0_ciclo"])
+    },
+    answers: answers,
+    scores: { s1, s2, s3, s4, total: totalScore, totalMax }
+  };
+
+  const result = await submitResponse(record);
+  btnSubmit.disabled = false;
+
+  if(result.ok && result.method === "storage"){
+    submitStatus.textContent = "Respuesta enviada correctamente. Gracias por completar el cuestionario.";
+    submitStatus.style.color = "var(--good)";
+  } else if(result.ok && result.method === "endpoint"){
+    submitStatus.textContent = "Respuesta enviada correctamente al servidor configurado.";
+    submitStatus.style.color = "var(--good)";
+  } else if(result.ok && result.method === "local"){
+    submitStatus.textContent = "No hay un servidor compartido configurado: su respuesta se guardó en este dispositivo y se descargó como archivo .json. Envíe ese archivo al investigador (por correo o WhatsApp) para consolidarlo.";
+    submitStatus.style.color = "var(--warn)";
+  } else {
+    submitStatus.textContent = "No se pudo enviar la respuesta. Intente nuevamente.";
+    submitStatus.style.color = "var(--warn)";
+  }
+});
+
+document.getElementById("btnGroup").addEventListener("click", loadGroupResults);
+
+async function loadGroupResults(){
+  const panel = document.getElementById("groupResults");
+  const content = document.getElementById("groupContent");
+  panel.style.display = "block";
+  content.textContent = "Cargando resultados...";
+  panel.scrollIntoView({behavior:"smooth"});
+
+  let records = [];
+  let source = "";
+
+  if(window.storage && typeof window.storage.list === "function"){
+    try{
+      const listResult = await window.storage.list("responses:", true);
+      const keys = (listResult && listResult.keys) ? listResult.keys : [];
+      for(const key of keys){
+        try{
+          const r = await window.storage.get(key, true);
+          if(r && r.value) records.push(JSON.parse(r.value));
+        }catch(e){ /* clave inexistente o corrupta, se omite */ }
+      }
+      source = "storage";
+    }catch(e){ console.warn("window.storage.list falló", e); }
+  }
+
+  if(records.length === 0){
+    try{
+      const local = JSON.parse(localStorage.getItem("lcu_survey_local_responses") || "[]");
+      if(local.length){ records = local; source = "local"; }
+    }catch(e){ /* ignore */ }
+  }
+
+  if(records.length === 0){
+    content.textContent = "Todavía no hay respuestas registradas en este dispositivo o almacenamiento compartido.";
+    return;
+  }
+
+  const n = records.length;
+  const sum = {s1:0,s1max:0,s2:0,s2max:0,s3:0,s3max:0,s4:0,s4max:0,total:0,totalMax:0};
+  records.forEach(r=>{
+    sum.s1 += r.scores.s1.score; sum.s1max += r.scores.s1.max;
+    sum.s2 += r.scores.s2.score; sum.s2max += r.scores.s2.max;
+    sum.s3 += r.scores.s3.score; sum.s3max += r.scores.s3.max;
+    sum.s4 += r.scores.s4.score; sum.s4max += r.scores.s4.max;
+    sum.total += r.scores.total; sum.totalMax += r.scores.totalMax;
+  });
+
+  const avg = (a,b)=> b>0 ? (a/n).toFixed(1)+" / "+(b/n).toFixed(1) : "—";
+  const pct = (a,b)=> b>0 ? ((a/b)*100).toFixed(0)+"%" : "—";
+  const sourceNote = source === "local"
+    ? "<p style=\"color:var(--warn);font-size:.8rem;\">Mostrando respuestas guardadas solo en este dispositivo (no hay almacenamiento compartido disponible aquí).</p>"
+    : "";
+
+  content.innerHTML = `
+    ${sourceNote}
+    <p><strong>${n}</strong> respuesta(s) registrada(s).</p>
+    <table style="width:100%;border-collapse:collapse;font-size:.88rem;">
+      <tr style="border-bottom:1px solid var(--line);"><td style="padding:.4rem 0;">Sección 1 · Conocimiento</td><td style="text-align:right;">${avg(sum.s1,sum.s1max)}</td><td style="text-align:right;color:var(--muted);">${pct(sum.s1,sum.s1max)}</td></tr>
+      <tr style="border-bottom:1px solid var(--line);"><td style="padding:.4rem 0;">Sección 2 · Práctica clínica</td><td style="text-align:right;">${avg(sum.s2,sum.s2max)}</td><td style="text-align:right;color:var(--muted);">${pct(sum.s2,sum.s2max)}</td></tr>
+      <tr style="border-bottom:1px solid var(--line);"><td style="padding:.4rem 0;">Sección 3 · Mantenimiento</td><td style="text-align:right;">${avg(sum.s3,sum.s3max)}</td><td style="text-align:right;color:var(--muted);">${pct(sum.s3,sum.s3max)}</td></tr>
+      <tr style="border-bottom:1px solid var(--line);"><td style="padding:.4rem 0;">Sección 4 · Satisfacción</td><td style="text-align:right;">${avg(sum.s4,sum.s4max)}</td><td style="text-align:right;color:var(--muted);">${pct(sum.s4,sum.s4max)}</td></tr>
+      <tr><td style="padding:.5rem 0;font-weight:bold;">Promedio global</td><td style="text-align:right;font-weight:bold;">${avg(sum.total,sum.totalMax)}</td><td style="text-align:right;font-weight:bold;color:var(--muted);">${pct(sum.total,sum.totalMax)}</td></tr>
+    </table>`;
+}
+
+// ---------------------------------------------------------------
+// Código QR para compartir el cuestionario
+// ---------------------------------------------------------------
+function initQR(){
+  const url = window.location.href;
+  const urlEl = document.getElementById("qrUrl");
+  const box = document.getElementById("qrcode");
+
+  if(url.startsWith("file://")){
+    urlEl.textContent = "Este archivo se está viendo localmente. Súbalo a un hosting (Google Sites, GitHub Pages, un servidor propio, etc.) para obtener un enlace y un QR que otras personas puedan abrir.";
+  } else {
+    urlEl.textContent = url;
+  }
+
+  if(window.QRCode){
+    try{
+      new QRCode(box, {
+        text: url,
+        width: 180,
+        height: 180,
+        colorDark: "#274b40",
+        colorLight: "#ffffff"
+      });
+    }catch(e){
+      box.innerHTML = '<span class="qr-fallback">No se pudo generar el código QR.</span>';
+    }
+  } else {
+    box.innerHTML = '<span class="qr-fallback">El generador de QR requiere conexión a internet para cargar.</span>';
+  }
+}
+
+document.getElementById("btnCopyLink").addEventListener("click", ()=>{
+  const url = window.location.href;
+  navigator.clipboard.writeText(url).then(()=>{
+    const btn = document.getElementById("btnCopyLink");
+    const original = btn.textContent;
+    btn.textContent = "¡Enlace copiado!";
+    setTimeout(()=>{ btn.textContent = original; }, 1800);
+  }).catch(()=>{
+    alert("No se pudo copiar automáticamente. Copie el enlace manualmente: " + url);
+  });
+});
+
+render();
+initQR();
+</script>
+</body>
+</html>
